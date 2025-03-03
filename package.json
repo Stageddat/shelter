@@ -12,6 +12,7 @@
         "deploy": "tsx scripts/deploy-commands.ts"
     },
     "dependencies": {
+        "@prisma/client": "6.4.1",
         "discord.js": "14.18.0",
         "dotenv": "16.4.5",
         "fs-extra": "11.2.0",
@@ -20,6 +21,7 @@
         "zod": "3.22.4"
     },
     "devDependencies": {
+        "prisma": "^6.4.1",
         "@types/fs-extra": "^11.0.4",
         "@types/node": "^20.11.20",
         "@types/prompts": "^2.4.9",
