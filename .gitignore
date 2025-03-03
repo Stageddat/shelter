@@ -1,4 +1,4 @@
-### Node ###
+# NODE
 # Logs
 logs
 *.log
@@ -7,6 +7,9 @@ yarn-debug.log*
 yarn-error.log*
 lerna-debug.log*
 .pnpm-debug.log*
+
+# db folder
+db
 
 # Runtime data
 pids
