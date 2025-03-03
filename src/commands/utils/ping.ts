@@ -9,7 +9,7 @@ const pingCommand = {
 
         const startTime = Date.now();
 
-        await interaction.reply({ content: 'poong!', withResponse: true, flags: MessageFlags.Ephemeral });
+        await interaction.reply({ content: 'poong!', withResponse: true});
         const botLatency = Date.now() - startTime;
         const pingEmbed = new EmbedBuilder()
             .setColor(0x0099FF)
