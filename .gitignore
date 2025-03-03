@@ -8,8 +8,9 @@ yarn-error.log*
 lerna-debug.log*
 .pnpm-debug.log*
 
-# db folder
+# database
 db
+prisma/migrations
 
 # Runtime data
 pids
