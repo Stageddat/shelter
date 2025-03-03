@@ -10,8 +10,7 @@ client.once(Events.ClientReady, () => {
     console.log(`${client.user?.tag} is ready :3!`);
 
     if (client.user) {
-        client.user.setActivity("gay", { type: 4 });
+        client.user.setActivity("having fun?", { type: 4 });
     }
 });
 client.login(env.DISCORD_TOKEN);
-// handleEvents();
