@@ -1,10 +1,10 @@
-import { CommandInteraction } from "discord.js";
+import { CommandInteraction } from 'discord.js';
 
 export interface CommandData {
-    name: string;
+	name: string;
 }
 
 export interface Command {
-    data: CommandData;
-    execute: (interaction: CommandInteraction) => void;
+	data: CommandData;
+	execute: (interaction: CommandInteraction) => void;
 }
