@@ -3,30 +3,43 @@ import path from 'path';
 import fs from 'fs';
 import { Logger } from '@/lib/logger';
 
-function findCommandFile(dir: string, commandName: string): string | null {
-	Logger.debug(`searching files in directory: ${dir}`);
-	const files = fs.readdirSync(dir, { withFileTypes: true });
+function findCommandFile(dirs: string[], commandName: string): string | null {
+	Logger.debug(`Searching for command '${commandName}' in directories:`);
+	dirs.forEach((dir) => Logger.debug(dir));
 
-	for (const file of files) {
-		const fullPath = path.join(dir, file.name);
-		Logger.debug(`processing file/directory: ${fullPath}`);
+	for (const dir of dirs) {
+		if (!fs.existsSync(dir)) {
+			Logger.debug(`Directory does not exist: ${dir}`);
+			continue;
+		}
 
-		if (file.isDirectory()) {
-			Logger.debug(`directory found: ${fullPath}, searching recursively...`);
-			const found: string | null = findCommandFile(fullPath, commandName);
-			if (found) {
-				Logger.debug(`command found in directory: ${found}`);
-				return found;
+		if (!fs.statSync(dir).isDirectory()) {
+			Logger.debug(`Path is not a directory: ${dir}`);
+			continue;
+		}
+
+		try {
+			const files = fs.readdirSync(dir, { withFileTypes: true });
+
+			for (const file of files) {
+				const fullPath = path.join(dir, file.name);
+
+				if (file.isDirectory()) {
+					const found = findCommandFile([fullPath], commandName);
+					if (found) return found;
+				} else if (
+					file.isFile() &&
+					(file.name === `${commandName}.ts` ||
+						file.name === `${commandName}.js`)
+				) {
+					return fullPath;
+				}
 			}
-		} else if (
-			file.isFile() &&
-			(file.name === `${commandName}.ts` || file.name === `${commandName}.js`)
-		) {
-			Logger.debug(`command file found: ${fullPath}`);
-			return fullPath;
+		} catch (error) {
+			Logger.error(`Error scanning directory ${dir}:`, error);
 		}
 	}
-	Logger.debug(`command file not found for: ${commandName}`);
+
 	return null;
 }
 
@@ -34,58 +47,74 @@ export const handleInteraction = async (interaction: Interaction) => {
 	if (!interaction.isChatInputCommand()) return;
 
 	const { commandName } = interaction;
-	Logger.debug(`handling interaction for command: ${commandName}`);
+	Logger.debug(`Handling interaction for command: ${commandName}`);
 
 	try {
-		const commandsDir = path.join(__dirname, '../commands');
-		Logger.debug(`commands directory: ${commandsDir}`);
+		const potentialCommandDirs = [
+			path.join(process.cwd(), 'src', 'commands'),
+			path.join(process.cwd(), 'commands'),
 
-		const commandPath = findCommandFile(commandsDir, commandName);
-		Logger.debug(`command path found: ${commandPath}`);
+			path.join(__dirname, '..', 'commands'),
+			path.join(__dirname, 'commands'),
+		];
+
+		const uniqueDirs = [...new Set(potentialCommandDirs)].filter(
+			(dir) => dir && typeof dir === 'string',
+		);
+
+		const commandPath = findCommandFile(uniqueDirs, commandName);
 
 		if (!commandPath) {
-			Logger.warn(`command "${commandName}" not found.`);
+			Logger.warn(`Command "${commandName}" not found. Attempted directories:`);
+			uniqueDirs.forEach((dir) => Logger.warn(dir));
+
 			await interaction.reply({
-				content: 'this command is not available!',
+				content: 'This command is not available!',
 				flags: MessageFlags.Ephemeral,
 			});
 			return;
 		}
 
-		const commandModule = await import(commandPath);
-		Logger.debug(`command module loaded: ${JSON.stringify(commandModule)}`);
+		Logger.debug(`Command path found: ${commandPath}`);
+
+		const commandModule = await import(`file://${commandPath}`);
+		Logger.debug(
+			`Command module loaded: ${JSON.stringify(Object.keys(commandModule))}`,
+		);
 
 		const command =
 			commandModule.default?.default || commandModule.default || commandModule;
 
-		Logger.debug(`command extracted from module: ${JSON.stringify(command)}`);
+		Logger.debug(
+			`Command extracted from module: ${JSON.stringify(Object.keys(command))}`,
+		);
 
 		if (!command || !command.data || !command.execute) {
-			Logger.warn(`invalid command "${commandName}".`);
+			Logger.warn(`Invalid command "${commandName}".`);
 			await interaction.reply({
-				content: 'this command is not available!',
+				content: 'This command is not available!',
 				flags: MessageFlags.Ephemeral,
 			});
 			return;
 		}
 
-		Logger.debug(`executing command: ${commandName}`);
+		Logger.debug(`Executing command: ${commandName}`);
 		await command.execute(interaction);
-		Logger.debug(`command "${commandName}" executed successfully.`);
+		Logger.debug(`Command "${commandName}" executed successfully.`);
 	} catch (error) {
-		Logger.error(`error executing command "${commandName}":`, error);
+		Logger.error(`Error executing command "${commandName}":`, error);
 
-		const errorMessage = 'there was an error executing this command!';
+		const errorMessage = 'There was an error executing this command!';
 
 		if (interaction.replied || interaction.deferred) {
 			await interaction.followUp({
 				content: errorMessage,
-				ephemeral: true,
+				flags: MessageFlags.Ephemeral,
 			});
 		} else {
 			await interaction.reply({
 				content: errorMessage,
-				ephemeral: true,
+				flags: MessageFlags.Ephemeral,
 			});
 		}
 	}
