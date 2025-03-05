@@ -1,7 +1,6 @@
 import {
 	CommandInteraction,
 	EmbedBuilder,
-	MessageFlags,
 	SlashCommandBuilder,
 } from 'discord.js';
 
