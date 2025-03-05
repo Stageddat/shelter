@@ -19,7 +19,10 @@ function findCommandFile(dir: string, commandName: string): string | null {
 		if (file.isDirectory()) {
 			const found: string | null = findCommandFile(fullPath, commandName);
 			if (found) return found;
-		} else if (file.isFile() && file.name === `${commandName}.ts`) {
+		} else if (
+			file.isFile() &&
+			(file.name === `${commandName}.ts` || file.name === `${commandName}.js`)
+		) {
 			return fullPath;
 		}
 	}
