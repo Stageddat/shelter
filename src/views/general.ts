@@ -9,5 +9,5 @@ export const errorEmbed = new EmbedBuilder()
 	.setColor(0xff0000)
 	.setTitle('something has exploded!')
 	.setDescription(
-		'it seems something went wrong:c... its not your fault!\nplease try again later or contact support',
+		'it seems something went wrong :c... its not your fault!\nplease try again later or contact support',
 	);
