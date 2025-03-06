@@ -1,7 +1,7 @@
 import { Interaction, MessageFlags } from 'discord.js';
-import path from 'path';
-import fs from 'fs';
-import { Logger } from '@/lib/logger';
+import path from 'node:path';
+import fs from 'node:fs';
+import { Logger } from '../lib/logger.js';
 
 function findCommandFile(dirs: string[], commandName: string): string | null {
 	Logger.debug(`Searching for command '${commandName}' in directories:`);
@@ -54,8 +54,8 @@ export const handleInteraction = async (interaction: Interaction) => {
 			path.join(process.cwd(), 'src', 'commands'),
 			path.join(process.cwd(), 'commands'),
 
-			path.join(__dirname, '..', 'commands'),
-			path.join(__dirname, 'commands'),
+			// path.join(__dirname, '..', 'commands'),
+			// path.join(__dirname, 'commands'),
 		];
 
 		const uniqueDirs = [...new Set(potentialCommandDirs)].filter(
@@ -103,19 +103,21 @@ export const handleInteraction = async (interaction: Interaction) => {
 		Logger.debug(`Command "${commandName}" executed successfully.`);
 	} catch (error) {
 		Logger.error(`Error executing command "${commandName}":`, error);
-
 		const errorMessage = 'There was an error executing this command!';
-
-		if (interaction.replied || interaction.deferred) {
-			await interaction.followUp({
-				content: errorMessage,
-				flags: MessageFlags.Ephemeral,
-			});
-		} else {
-			await interaction.reply({
-				content: errorMessage,
-				flags: MessageFlags.Ephemeral,
-			});
+		try {
+			if (interaction.replied || interaction.deferred) {
+				await interaction.followUp({
+					content: errorMessage,
+					flags: MessageFlags.Ephemeral,
+				});
+			} else {
+				await interaction.reply({
+					content: errorMessage,
+					flags: MessageFlags.Ephemeral,
+				});
+			}
+		} catch (e) {
+			Logger.error('Error sending error message:', e);
 		}
 	}
 };

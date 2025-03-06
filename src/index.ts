@@ -1,7 +1,7 @@
-import { CustomClient } from '@/lib/customClient';
-import { env } from './schemas/env';
+import { CustomClient } from './lib/customClient.js';
+import { env } from './schemas/env.js';
 import { Events } from 'discord.js';
-import { handleInteraction } from './handlers/handleInteraction';
+import { handleInteraction } from './handlers/handleInteraction.js';
 
 const client = new CustomClient();
 

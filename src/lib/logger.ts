@@ -1,4 +1,5 @@
-import { env } from '@/schemas/env';
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { env } from '../schemas/env.js';
 import pc from 'picocolors';
 
 export class Logger {
