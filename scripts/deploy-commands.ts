@@ -1,3 +1,6 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable indent */
 import { REST, Routes, SlashCommandBuilder } from 'discord.js';
 import * as fs from 'fs';
 import * as path from 'path';
@@ -58,15 +61,18 @@ async function loadSlashCommands(): Promise<
 
 		for (const filePath of slashCommandFiles) {
 			try {
-				const commandModule = require(filePath).default;
-				if (!commandModule || !commandModule.data) {
+				// Use dynamic import with file:// protocol for local files
+				const fileURL = `file://${filePath.replace(/\\/g, '/')}`;
+				const commandModule = await import(fileURL);
+
+				if (!commandModule.default || !commandModule.default.data) {
 					console.log(
 						`[WARNING] El comando en ${filePath} falta la propiedad 'data'.`,
 					);
 					continue;
 				}
 
-				const commandBuilder = commandModule.data;
+				const commandBuilder = commandModule.default.data;
 				if (!(commandBuilder instanceof SlashCommandBuilder)) {
 					console.log(
 						`[WARNING] 'data' en ${filePath} no es un SlashCommandBuilder válido.`,
@@ -93,8 +99,9 @@ function buildSlashCommand(
 	const commandBuilder = new SlashCommandBuilder();
 	commandBuilder.setName(config.name);
 	commandBuilder.setDescription(config.description);
-	if (command.permissions)
+	if (command.permissions) {
 		commandBuilder.setDefaultMemberPermissions(command.permissions);
+	}
 	if (config.nsfw) commandBuilder.setNSFW(config.nsfw);
 
 	if (config.options) {
@@ -113,20 +120,22 @@ function addCommandOptions(
 			case 'STRING':
 				commandBuilder.addStringOption((opt) => {
 					setGenericOptionInfo(opt, option);
-					if (option.choices)
+					if (option.choices) {
 						opt.addChoices(
 							...(option.choices as { name: string; value: string }[]),
 						);
+					}
 					return opt;
 				});
 				break;
 			case 'INTEGER':
 				commandBuilder.addIntegerOption((opt) => {
 					setGenericOptionInfo(opt, option);
-					if (option.choices)
+					if (option.choices) {
 						opt.addChoices(
 							...(option.choices as { name: string; value: number }[]),
 						);
+					}
 					if (option.minValue) opt.setMinValue(option.minValue);
 					if (option.maxValue) opt.setMaxValue(option.maxValue);
 					return opt;
@@ -135,10 +144,11 @@ function addCommandOptions(
 			case 'NUMBER':
 				commandBuilder.addNumberOption((opt) => {
 					setGenericOptionInfo(opt, option);
-					if (option.choices)
+					if (option.choices) {
 						opt.addChoices(
 							...(option.choices as { name: string; value: number }[]),
 						);
+					}
 					if (option.minValue) opt.setMinValue(option.minValue);
 					if (option.maxValue) opt.setMaxValue(option.maxValue);
 					return opt;
