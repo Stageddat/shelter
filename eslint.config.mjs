@@ -51,7 +51,6 @@ export default [
 			'space-unary-ops': 'error',
 			'spaced-comment': 'error',
 			yoda: 'error',
-			'@typescript-eslint/no-explicit-any': 'off',
 		},
 	},
 	pluginJs.configs.recommended,
