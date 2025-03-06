@@ -25,7 +25,9 @@
 		}
 	},
 	"include": [
-		"./**/*.ts"
+		"./**/*.ts",
+		"./config/**/*.ts",
+		"./config/**/*.json"
 	],
 	"exclude": [
 		"node_modules",
