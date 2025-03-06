@@ -11,7 +11,7 @@ lerna-debug.log*
 # database
 db
 prisma/migrations
-
+config
 # Runtime data
 pids
 *.pid
