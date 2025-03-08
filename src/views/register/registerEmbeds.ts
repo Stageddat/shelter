@@ -10,7 +10,7 @@ export class registerEmbedsView {
 				iconURL: 'https://shelter-d.b-cdn.net/rin-pfp.jpg',
 			})
 			.setDescription(
-				'hello theme, random internet user!\nim Rin and welcome to **shelter**, your special little corner on discord. here you can write your daily adventures and save them in your personal diary, right on the platform you love so much!',
+				'hello there, random internet user!\nim Rin and welcome to **shelter**, your special little corner on discord. here you can write your daily adventures and save them in your personal diary, right on the platform you love so much!',
 			);
 	}
 }

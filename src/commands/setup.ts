@@ -4,6 +4,7 @@ import { errorEmbed } from '../views/general.js';
 import { Logger } from '../lib/logger.js';
 import { RegisterStatus } from '../enum/registerStatus.js';
 import { registerEmbedsView } from '../views/register/registerEmbeds.js';
+import { startRow } from 'src/views/register/registerComponents.js';
 
 const setupCommand = {
 	data: new SlashCommandBuilder().setName('setup').setDescription('start your journey!'),
@@ -16,6 +17,7 @@ const setupCommand = {
 				if (response === 0) {
 					return interaction.reply({
 						embeds: [registerEmbedsView.welcomeSetupEmbed(interaction.user.username)],
+						components: [startRow],
 					});
 				}
 				return interaction.reply({ content: response.toString() });
