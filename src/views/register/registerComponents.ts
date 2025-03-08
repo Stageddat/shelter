@@ -1,7 +1,7 @@
 import { ActionRowBuilder, ButtonBuilder, ButtonStyle } from 'discord.js';
 
 const startButton = new ButtonBuilder()
-	.setCustomId('next')
+	.setCustomId('startSetupButton')
 	.setLabel('Get started!')
 	.setStyle(ButtonStyle.Success)
 	.setEmoji('➡️');
