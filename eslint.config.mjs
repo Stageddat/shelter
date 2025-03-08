@@ -10,11 +10,22 @@ export default [
 	{
 		files: ['**/*.{js,mjs,cjs,ts}'],
 		languageOptions: {
-			globals: globals.browser,
+			globals: {
+				...globals.browser,
+				...globals.node,
+			},
 			ecmaVersion: 'latest',
+			parser: tseslint.parser,
+			parserOptions: {
+				project: './tsconfig.json',
+				tsconfigRootDir: import.meta.dirname,
+				ecmaVersion: 'latest',
+				sourceType: 'module',
+			},
 		},
 		plugins: {
 			prettier: eslintPluginPrettier,
+			'@typescript-eslint': tseslint.plugin,
 		},
 		rules: {
 			indent: 'off',
@@ -50,9 +61,16 @@ export default [
 			'space-unary-ops': 'off',
 			'spaced-comment': 'error',
 			yoda: 'error',
+			'@typescript-eslint/switch-exhaustiveness-check': 'error',
 		},
 	},
+	{
+		files: ['**/eslint.config.mjs'],
+		languageOptions: {
+			globals: globals.node,
+		},
+	},
+	...tseslint.configs.recommendedTypeChecked,
 	pluginJs.configs.recommended,
-	...tseslint.configs.recommended,
 	prettierConfig,
 ];
