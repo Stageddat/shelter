@@ -6,7 +6,7 @@ import {
 } from 'discord.js';
 import { env } from '../../schemas/env.js';
 import os from 'os';
-import { permissionController } from '@/controllers/permission.js';
+import { permissionController } from '../../controllers/permission.js';
 
 const statusCommand = {
 	data: new SlashCommandBuilder()
