@@ -2,6 +2,7 @@ import { Interaction, MessageFlags } from 'discord.js';
 import path from 'node:path';
 import fs from 'node:fs';
 import { Logger } from '../lib/logger.js';
+import { errorEmbed } from 'src/views/general.js';
 
 function findCommandFile(dirs: string[], commandName: string): string | null {
 	Logger.debug(`Searching for command '${commandName}' in directories:`);
@@ -29,8 +30,7 @@ function findCommandFile(dirs: string[], commandName: string): string | null {
 					if (found) return found;
 				} else if (
 					file.isFile() &&
-					(file.name === `${commandName}.ts` ||
-						file.name === `${commandName}.js`)
+					(file.name === `${commandName}.ts` || file.name === `${commandName}.js`)
 				) {
 					return fullPath;
 				}
@@ -43,7 +43,7 @@ function findCommandFile(dirs: string[], commandName: string): string | null {
 	return null;
 }
 
-export const handleInteraction = async (interaction: Interaction) => {
+export const handleCommandInteraction = async (interaction: Interaction) => {
 	if (!interaction.isChatInputCommand()) return;
 
 	const { commandName } = interaction;
@@ -78,16 +78,11 @@ export const handleInteraction = async (interaction: Interaction) => {
 		Logger.debug(`Command path found: ${commandPath}`);
 
 		const commandModule = await import(`file://${commandPath}`);
-		Logger.debug(
-			`Command module loaded: ${JSON.stringify(Object.keys(commandModule))}`,
-		);
+		Logger.debug(`Command module loaded: ${JSON.stringify(Object.keys(commandModule))}`);
 
-		const command =
-			commandModule.default?.default || commandModule.default || commandModule;
+		const command = commandModule.default?.default || commandModule.default || commandModule;
 
-		Logger.debug(
-			`Command extracted from module: ${JSON.stringify(Object.keys(command))}`,
-		);
+		Logger.debug(`Command extracted from module: ${JSON.stringify(Object.keys(command))}`);
 
 		if (!command || !command.data || !command.execute) {
 			Logger.warn(`Invalid command "${commandName}".`);
@@ -103,16 +98,15 @@ export const handleInteraction = async (interaction: Interaction) => {
 		Logger.debug(`Command "${commandName}" executed successfully.`);
 	} catch (error) {
 		Logger.error(`Error executing command "${commandName}":`, error);
-		const errorMessage = 'There was an error executing this command!';
 		try {
 			if (interaction.replied || interaction.deferred) {
 				await interaction.followUp({
-					content: errorMessage,
+					embeds: [errorEmbed],
 					flags: MessageFlags.Ephemeral,
 				});
 			} else {
 				await interaction.reply({
-					content: errorMessage,
+					embeds: [errorEmbed],
 					flags: MessageFlags.Ephemeral,
 				});
 			}
