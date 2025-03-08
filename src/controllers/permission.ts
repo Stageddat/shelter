@@ -1,5 +1,5 @@
-import { Logger } from '@/lib/logger';
-import { adminUserIDs } from 'config/adminUsers';
+import { Logger } from '../lib/logger.js';
+import { adminUserIDs } from '../../config/adminUsers.js';
 
 export class permissionController {
 	static async isUserAdmin({ userID }: { userID: string }) {

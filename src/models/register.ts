@@ -1,7 +1,7 @@
-import prisma from '@/lib/prisma';
-import { Logger } from '@/lib/logger';
-import { RegisterStatus } from '@/enum/registerStatus';
-import { GeneralStatus } from '@/enum/generalStatus';
+import prisma from '../lib/prisma.js';
+import { Logger } from '../lib/logger.js';
+import { RegisterStatus } from '../enum/registerStatus.js';
+import { GeneralStatus } from '../enum/generalStatus.js';
 
 export class registerModel {
 	static async addNewUser({ userID }: { userID: string }) {
