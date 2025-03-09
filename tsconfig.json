@@ -22,7 +22,8 @@
 	"include": [
 		"./**/*.ts",
 		"./config/**/*.ts",
-		"./config/**/*.json"
+		"./config/**/*.json",
+		"eslint.config.mjs"
 	],
 	"exclude": [
 		"node_modules",
