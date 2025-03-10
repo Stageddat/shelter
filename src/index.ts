@@ -1,11 +1,14 @@
 import { CustomClient } from './lib/customClient.js';
-import { env } from './schemas/env.js';
 import { Events } from 'discord.js';
 import { handleInteraction } from './handlers/handleInteractions.js';
+import { env } from './lib/env.js';
 
 const client = new CustomClient();
 
-client.on(Events.InteractionCreate, handleInteraction);
+client.on(Events.InteractionCreate, (interaction) => {
+	void handleInteraction(interaction);
+});
+
 client.once(Events.ClientReady, () => {
 	console.log(`${client.user?.tag} is ready :3!`);
 
@@ -13,4 +16,9 @@ client.once(Events.ClientReady, () => {
 		client.user.setActivity('having fun?', { type: 4 });
 	}
 });
-client.login(env.DISCORD_TOKEN);
+
+console.log('Logging...');
+client.login(env.DISCORD_TOKEN).catch((err) => {
+	console.error('Failed to login:', err);
+	process.exit(1);
+});
