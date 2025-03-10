@@ -1,8 +1,14 @@
+/* eslint-disable @typescript-eslint/no-unsafe-call */
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-unsafe-argument */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { Interaction, MessageFlags } from 'discord.js';
 import path from 'node:path';
 import fs from 'node:fs';
 import { Logger } from '../lib/logger.js';
 import { errorEmbed } from 'src/views/general.js';
+
+// idk how this shit works, ask chatgpt pls
 
 function findCommandFile(dirs: string[], commandName: string): string | null {
 	Logger.debug(`Searching for command '${commandName}' in directories:`);

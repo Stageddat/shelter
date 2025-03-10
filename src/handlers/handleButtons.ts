@@ -1,8 +1,14 @@
+/* eslint-disable @typescript-eslint/no-unsafe-call */
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-unsafe-argument */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { ButtonInteraction } from 'discord.js';
 import path from 'node:path';
 import fs from 'node:fs';
 import { Logger } from '../lib/logger.js';
 import { errorEmbed } from 'src/views/general.js';
+
+// this shit works somehow, idk why
 
 function findButtonFile(dirs: string[], buttonId: string): string | null {
 	Logger.debug(`Searching for button handler '${buttonId}' in directories:`);
