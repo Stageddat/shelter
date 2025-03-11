@@ -6,4 +6,12 @@ export class permissionController {
 		Logger.debug(`checking if user ${userID} is admin: ${adminUserIDs.includes(userID)}`);
 		return adminUserIDs.includes(userID);
 	}
+
+	// verificar si el quien clica el interaction sea el mismo con el usuario inicial del mensaje
+	static isSameUser({ userID, messageUserID }: { userID: string; messageUserID: string }) {
+		if (userID === messageUserID) {
+			return true;
+		}
+		return false;
+	}
 }
