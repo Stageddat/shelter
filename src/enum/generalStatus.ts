@@ -3,4 +3,5 @@ export enum GeneralStatus {
 	databaseError = 'Something failed accessing the database',
 	internalError = 'An internal error occurred',
 	unexpectedError = 'An unexpected error occurred',
+	userNotAllowed = 'User is not allowed to do this',
 }

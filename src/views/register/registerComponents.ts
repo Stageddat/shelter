@@ -1,9 +1,9 @@
 import { ActionRowBuilder, ButtonBuilder, ButtonStyle } from 'discord.js';
 
-const startButton = new ButtonBuilder()
-	.setCustomId('startSetupButton')
+const nextSetupButton = new ButtonBuilder()
+	.setCustomId('nextSetupButton')
 	.setLabel('Get started!')
-	.setStyle(ButtonStyle.Success)
+	.setStyle(ButtonStyle.Secondary)
 	.setEmoji('➡️');
 
-export const startRow = new ActionRowBuilder<ButtonBuilder>().addComponents(startButton);
+export const startRow = new ActionRowBuilder<ButtonBuilder>().addComponents(nextSetupButton);

@@ -27,6 +27,7 @@ export class registerModel {
 					userID: userID,
 				},
 			});
+			Logger.debug('New user created' + newUser.userID);
 			return RegisterStatus.userRegisteredSuccessfully;
 		} catch (error) {
 			Logger.error(error);
@@ -40,6 +41,28 @@ export class registerModel {
 			});
 			if (!userData) return RegisterStatus.userNotRegistered;
 			return userData.setupCount;
+		} catch (error) {
+			Logger.error(error);
+			return GeneralStatus.databaseError;
+		}
+	}
+
+	static async isUserSetupComplete({ userID }: { userID: string }) {
+		try {
+			const userSetupComplete = await prisma.users.findUnique({
+				where: { userID },
+				select: { setupComplete: true },
+			});
+			Logger.debug(userSetupComplete);
+			if (userSetupComplete === null) return false;
+			switch (userSetupComplete?.setupComplete) {
+				case true:
+					return true;
+				case false:
+					return false;
+				default:
+					return false;
+			}
 		} catch (error) {
 			Logger.error(error);
 			return GeneralStatus.databaseError;
