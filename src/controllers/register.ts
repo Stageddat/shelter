@@ -112,6 +112,7 @@ export class registerController {
 					return GeneralStatus.internalError;
 			}
 		} catch (error) {
+			Logger.error('Error in getNextSetupStep');
 			Logger.error(error);
 			return GeneralStatus.internalError;
 		}

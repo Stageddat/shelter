@@ -1,7 +1,7 @@
 import { EmbedBuilder } from 'discord.js';
 import { RegisterStatus } from '../enum/registerStatus';
 import { registerEmbedsView } from './register/registerEmbeds';
-import { startRow } from './register/registerComponents';
+import { introRow, startRow } from './register/registerComponents';
 
 export class registerView {
 	static getSetupEmbed({
@@ -26,11 +26,11 @@ export class registerView {
 	static getSetupComponents({ number }: { number: number }) {
 		switch (number) {
 			case 0:
-				// devolver el primer boton
+				// devolver el primer boton (bienvenida a Rin)
 				return [startRow];
 			case 1:
-				// devolver el segundo boton
-				return [];
+				// devolver el segundo boton (intro)
+				return [introRow];
 			default:
 				return [];
 		}

@@ -10,9 +10,13 @@ export default {
 	customId: 'nextSetupButton',
 	execute: async (interaction: ButtonInteraction) => {
 		const messageUserID = interaction.message.interactionMetadata?.user.id;
-		if (messageUserID === undefined)
-			return await interaction.message.edit({ embeds: [errorEmbed] });
+		if (messageUserID === undefined) {
+			return await interaction.editReply({ embeds: [errorEmbed] });
+		}
+
 		try {
+			await interaction.deferUpdate();
+
 			const response = await registerController.getNextSetupStep({
 				userID: interaction.user.id,
 				messageUserID: messageUserID,
@@ -25,14 +29,15 @@ export default {
 				const components = registerView.getSetupComponents({ number: response });
 
 				if (!(responseEmbed instanceof EmbedBuilder)) {
-					return interaction.message.edit({ embeds: [errorEmbed] });
+					return interaction.editReply({ embeds: [errorEmbed] });
 				}
-				return interaction.message.edit({ embeds: [responseEmbed], components: components });
+				return interaction.editReply({ embeds: [responseEmbed], components: components });
 			}
 			return response;
 		} catch (error) {
+			Logger.error('Failed to reply with error message');
 			Logger.error(error);
-			return await interaction.message.edit({ embeds: [errorEmbed] });
+			return await interaction.editReply({ embeds: [errorEmbed] });
 		}
 	},
 };
