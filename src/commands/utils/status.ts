@@ -6,7 +6,7 @@ import { permissionController } from '../../controllers/permission.js';
 const statusCommand = {
 	data: new SlashCommandBuilder().setName('status').setDescription('see server status'),
 	async execute(interaction: CommandInteraction) {
-		if (!(await permissionController.isUserAdmin({ userID: interaction.user.id }))) {
+		if (!permissionController.isUserAdmin({ userID: interaction.user.id })) {
 			return await interaction.reply({
 				content: 'you do not have permission to run this command',
 				flags: MessageFlags.Ephemeral,
