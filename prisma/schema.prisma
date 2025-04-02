@@ -14,10 +14,9 @@ datasource db {
 }
 
 model Users {
-    userID  String  @unique
-    country String?
-    timeZone String?
-    encryptionMode String?
-    setupComplete Boolean @default(false)
-    setupCount Int @default(0)
+  userID         String  @unique
+  utcOffset      Int?    @default(0)
+  encryptionMode String?
+  setupComplete  Boolean @default(false)
+  setupCount     Int     @default(0)
 }
