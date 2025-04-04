@@ -5,4 +5,5 @@ export enum RegisterStatus {
 	userNotRegistered = 'User is not registered in the database',
 	userRegisteredSuccessfully = 'User registered successfully to the database',
 	usernameNotProvided = 'Username not provided',
+	timezoneNotProvided = 'Timezone not provided',
 }
