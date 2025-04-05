@@ -15,8 +15,8 @@ datasource db {
 
 model Users {
   userID         String  @unique
-  utcOffset      Int?    @default(0)
-  encryptionMode String?
+  utcOffset      Int     @default(0)
+  encryptionMode String  @default("normal")
   setupComplete  Boolean @default(false)
   setupCount     Int     @default(0)
 }
