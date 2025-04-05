@@ -35,9 +35,9 @@ const substractTimezoneButton = new ButtonBuilder()
 	.setEmoji('<substract:1357025109277413619>');
 
 export const setTimezoneRow = new ActionRowBuilder<ButtonBuilder>().addComponents(
-	addTimezoneButton,
-	restartTimezoneButton,
 	substractTimezoneButton,
+	restartTimezoneButton,
+	addTimezoneButton,
 );
 
 // const timeZones = Intl.supportedValuesOf('timeZone');
