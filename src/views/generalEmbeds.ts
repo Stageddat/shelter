@@ -11,3 +11,8 @@ export const errorEmbed = new EmbedBuilder()
 	.setDescription(
 		'it seems something went wrong :c... its not your fault!\nplease try again later or contact support',
 	);
+
+export const notAllowedEmbed = new EmbedBuilder()
+	.setColor(0xff0000)
+	.setTitle('uh oh...')
+	.setDescription('u are not allowed to interact with this!');
