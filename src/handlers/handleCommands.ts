@@ -6,7 +6,7 @@ import { Interaction, MessageFlags } from 'discord.js';
 import path from 'node:path';
 import fs from 'node:fs';
 import { Logger } from '../lib/logger.js';
-import { errorEmbed } from 'src/views/general.js';
+import { errorEmbed } from 'src/views/generalEmbeds.js';
 
 // idk how this shit works, ask chatgpt pls
 

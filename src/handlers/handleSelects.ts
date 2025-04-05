@@ -5,7 +5,7 @@ import { AnySelectMenuInteraction } from 'discord.js';
 import path from 'node:path';
 import fs from 'node:fs';
 import { Logger } from '../lib/logger.js';
-import { errorEmbed } from 'src/views/general.js';
+import { errorEmbed } from 'src/views/generalEmbeds.js';
 
 function findSelectFile(dirs: string[], selectId: string): string | null {
 	Logger.debug(`Searching for select menu handler '${selectId}' in directories:`);
