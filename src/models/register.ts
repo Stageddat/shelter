@@ -47,22 +47,28 @@ export class registerModel {
 		}
 	}
 
-	static async isUserSetupComplete({ userID }: { userID: string }) {
+	static async updateUserStep({ userID, newUserStep }: { userID: string; newUserStep: number }) {
 		try {
-			const userSetupComplete = await prisma.users.findUnique({
+			const updatedUser = await prisma.users.update({
 				where: { userID },
-				select: { setupComplete: true },
+				data: { setupCount: newUserStep },
 			});
-			Logger.debug(userSetupComplete);
-			if (userSetupComplete === null) return false;
-			switch (userSetupComplete?.setupComplete) {
-				case true:
-					return true;
-				case false:
-					return false;
-				default:
-					return false;
-			}
+
+			if (!updatedUser) return RegisterStatus.userNotRegistered;
+			return GeneralStatus.databaseSucess;
+		} catch (error) {
+			Logger.error(error);
+			return GeneralStatus.databaseError;
+		}
+	}
+
+	static async getUserTimezone({ userID }: { userID: string }) {
+		try {
+			const userData = await prisma.users.findUnique({
+				where: { userID },
+			});
+			if (!userData) return RegisterStatus.userNotRegistered;
+			return userData.utcOffset;
 		} catch (error) {
 			Logger.error(error);
 			return GeneralStatus.databaseError;

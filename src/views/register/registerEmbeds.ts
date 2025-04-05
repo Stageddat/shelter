@@ -29,6 +29,39 @@ export class registerEmbedsView {
 			);
 	}
 
+	static timezoneSetupEmbed(utcOffset: number) {
+		// calcular hroas y min
+		const hours = Math.floor(utcOffset);
+		const minutes = Math.round((utcOffset - hours) * 60);
+
+		return new EmbedBuilder().setColor(0x5eddff).setTitle('Set Up Your Timezone!').setAuthor({
+			name: 'Rin',
+			iconURL: rinProfilePicture,
+		}).setDescription(`
+        First of all! We need your exact timezone 
+        to know when to send you your daily reminder 
+        and save your entries at the right time, 
+        so everything stays organized :3.
+
+        **Current UTC: ${utcOffset >= 0 ? '+' : ''}${utcOffset}**
+
+        Synchronize using the <add:1357025119352131775> and <substract:1357025109277413619> buttons until the local time matches the target time.
+        Your local time must match the target time.
+
+        **1.**
+        🕒 Target time: <t:1171616400:t>
+        🌍 Your local time: ${(9 + hours).toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}
+
+        **2.**
+        🕒 Target time: <t:1171638000:t>
+        🌍 Your local time: ${(15 + hours).toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}
+
+        **3.**
+        🕒 Target time: <t:1171656000:t>
+        🌍 Your local time: ${(21 + hours).toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}
+    `);
+	}
+
 	static setupCompletedEmbed() {
 		return new EmbedBuilder()
 			.setColor(0x5eddff)

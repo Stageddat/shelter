@@ -14,16 +14,25 @@ const setupCommand = {
 	async execute(interaction: CommandInteraction) {
 		try {
 			const response = await registerController.newUser({ userID: interaction.user.id });
-
+			const utcOffset = await registerController.getUserTimezone({
+				userID: interaction.user.id,
+			});
+			console.log(typeof response);
+			console.log(typeof utcOffset);
+			console.log(utcOffset);
 			// numeros significan que el usuario esta registrado pero no ha completado setup
-			if (typeof response === 'number') {
+			if (typeof response === 'number' && typeof utcOffset === 'number') {
+				console.log('tetas');
 				const responseEmbed = registerView.getSetupEmbed({
 					number: response,
 					username: interaction.user.username,
+					timezone: utcOffset,
 				});
 				const components = registerView.getSetupComponents({ number: response });
 
 				if (!(responseEmbed instanceof EmbedBuilder)) {
+					console.log('gay');
+					console.log(responseEmbed);
 					return interaction.reply({ embeds: [errorEmbed] });
 				}
 
@@ -42,6 +51,8 @@ const setupCommand = {
 				case GeneralStatus.internalError:
 					return interaction.reply({ embeds: [errorEmbed] });
 			}
+			console.log(utcOffset);
+			return interaction.reply({ embeds: [errorEmbed] });
 		} catch (error) {
 			Logger.error(error);
 			return interaction.reply({ embeds: [errorEmbed] });

@@ -1,3 +1,4 @@
+import { userModel } from 'src/models/user.js';
 import { GeneralStatus } from '../enum/generalStatus.js';
 import { RegisterStatus } from '../enum/registerStatus.js';
 import { Logger } from '../lib/logger.js';
@@ -34,25 +35,10 @@ export class registerController {
 		}
 	}
 
-	static async isUserSetupComplete({ userID }: { userID: string }) {
-		try {
-			// check if user setup is complete
-			const isUserSetupComplete = await registerModel.isUserSetupComplete({ userID });
-			if (isUserSetupComplete === true) return true;
-			else if (isUserSetupComplete === GeneralStatus.databaseError) {
-				throw new Error(GeneralStatus.databaseError);
-			}
-			return false;
-		} catch (error) {
-			Logger.error(error);
-			return GeneralStatus.internalError;
-		}
-	}
-
 	static async getCurrentSetupStep({ userID }: { userID: string }) {
 		try {
 			// ver si el usuario esta de verdad registrado o es un troller de mierda
-			const userSetupStatus = await registerController.isUserSetupComplete({
+			const userSetupStatus = await userModel.isUserSetupComplete({
 				userID: userID,
 			});
 			Logger.debug(userSetupStatus);
@@ -60,7 +46,7 @@ export class registerController {
 				case true: {
 					return RegisterStatus.userSetupComplete;
 				}
-				case GeneralStatus.internalError:
+				case GeneralStatus.databaseError:
 					return GeneralStatus.internalError;
 				case false:
 					break;
@@ -90,20 +76,24 @@ export class registerController {
 				return GeneralStatus.userNotAllowed;
 			}
 			// ver si el usuario esta de verdad registrado o es un troller de mierda
-			const userSetupStatus = await registerController.isUserSetupComplete({
+			const userSetupStatus = await userModel.isUserSetupComplete({
 				userID: userID,
 			});
-			Logger.debug(userSetupStatus);
 			switch (userSetupStatus) {
 				case true: {
 					return RegisterStatus.userSetupComplete;
 				}
-				case GeneralStatus.internalError:
+				case GeneralStatus.databaseError:
 					return GeneralStatus.internalError;
 				case false: {
 					const userStep = await registerModel.getUserStep({ userID });
-					if (typeof userStep === 'number') return userStep + 1;
-					else if (userStep === RegisterStatus.userNotRegistered) {
+					if (typeof userStep === 'number') {
+						await registerModel.updateUserStep({
+							userID: userID,
+							newUserStep: userStep + 1,
+						});
+						return userStep + 1;
+					} else if (userStep === RegisterStatus.userNotRegistered) {
 						return RegisterStatus.userNotRegistered;
 					}
 					return GeneralStatus.internalError;
@@ -116,5 +106,11 @@ export class registerController {
 			Logger.error(error);
 			return GeneralStatus.internalError;
 		}
+	}
+
+	static async getUserTimezone({ userID }: { userID: string }) {
+		const userUtcOffset = await registerModel.getUserTimezone({ userID });
+		if (typeof userUtcOffset === 'number') return userUtcOffset;
+		else return GeneralStatus.internalError;
 	}
 }

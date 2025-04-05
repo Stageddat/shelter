@@ -21,10 +21,14 @@ export default {
 				userID: interaction.user.id,
 				messageUserID: messageUserID,
 			});
-			if (typeof response === 'number') {
+			const utcOffset = await registerController.getUserTimezone({
+				userID: interaction.user.id,
+			});
+			if (typeof response === 'number' && typeof utcOffset === 'number') {
 				const responseEmbed = registerView.getSetupEmbed({
 					number: response,
 					username: interaction.user.username,
+					timezone: utcOffset,
 				});
 				const components = registerView.getSetupComponents({ number: response });
 

@@ -21,7 +21,7 @@ export class registerView {
 			case 1:
 				return registerEmbedsView.introductionEmbed();
 			case 2:
-				if (!timezone) return RegisterStatus.timezoneNotProvided;
+				if (timezone === null || timezone === undefined) return RegisterStatus.timezoneNotProvided;
 				return registerEmbedsView.timezoneSetupEmbed(timezone);
 			default:
 				return new EmbedBuilder().setTitle('Setup').setDescription('Unknown setup step');
