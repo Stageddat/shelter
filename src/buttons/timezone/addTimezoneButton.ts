@@ -23,7 +23,6 @@ export default {
 			const utcOffset = await timezoneController.addTimezone({
 				userID: interaction.user.id,
 				messageUserID,
-				utcOffset: 0,
 				embedText: embedText,
 			});
 			switch (utcOffset) {

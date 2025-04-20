@@ -5,9 +5,7 @@ import { GeneralStatus } from '../enum/generalStatus.js';
 import { Logger } from '../lib/logger.js';
 import { permissionController } from './permission.js';
 import { RegisterStatus } from 'src/enum/registerStatus.js';
-import { EmbedBuilder } from 'discord.js';
 
-// Array de offsets en formato string para UI
 const utcOffsets = [
 	'−12:00',
 	'−11:00',
@@ -50,7 +48,6 @@ const utcOffsets = [
 	'+14:00',
 ];
 
-// Mapeo entre representación string y valor en minutos
 const utcOffsetsInMinutes = {
 	'−12:00': -720,
 	'−11:00': -660,
@@ -132,21 +129,19 @@ export class timezoneController {
 	static async addTimezone({
 		userID,
 		messageUserID,
-		utcOffset,
 		embedText,
 	}: {
 		userID: string;
 		messageUserID: string;
-		utcOffset: number;
 		embedText: string;
 	}) {
 		try {
-			// Comprobar si es el mismo usuario que ejecuta el /setup con el quien clica
+			// comprovar q no sea otro hijo de puta
 			if (!permissionController.isSameUser({ userID: userID, messageUserID: messageUserID })) {
 				return GeneralStatus.userNotAllowed;
 			}
 
-			// Extraer el UTC actual del embed
+			// extraer el texto
 			const utcRegex = /Current UTC: ([−+]\d{2}:\d{2})/;
 			const match = embedText?.match(utcRegex);
 
@@ -155,10 +150,10 @@ export class timezoneController {
 				return GeneralStatus.internalError;
 			}
 
-			// Obtener el actual UTC string
+			// obtener el texto
 			const currentUTC = match[1];
 
-			// Buscar índice en array
+			// buscar el index
 			const currentIndex = utcOffsets.findIndex((utc) => utc === currentUTC);
 
 			if (currentIndex === -1) {
@@ -184,7 +179,7 @@ export class timezoneController {
 				return GeneralStatus.internalError;
 			}
 
-			// Devolver los minutos para actualizar el embed
+			// devolver los minutos para actualizar el embed
 			return nextUTCMinutes;
 		} catch (error) {
 			Logger.error(error);
@@ -195,21 +190,19 @@ export class timezoneController {
 	static async subtractTimezone({
 		userID,
 		messageUserID,
-		utcOffset,
 		embedText,
 	}: {
 		userID: string;
 		messageUserID: string;
-		utcOffset: number;
 		embedText: string;
 	}) {
 		try {
-			// Comprobar si es el mismo usuario que ejecuta el /setup con el quien clica
+			// comprobar q no sea otro trozo de basura
 			if (!permissionController.isSameUser({ userID: userID, messageUserID: messageUserID })) {
 				return GeneralStatus.userNotAllowed;
 			}
 
-			// Extraer el UTC actual del embed
+			// extraer el texto
 			const utcRegex = /Current UTC: ([−+]\d{2}:\d{2})/;
 			const match = embedText?.match(utcRegex);
 
@@ -218,10 +211,10 @@ export class timezoneController {
 				return GeneralStatus.internalError;
 			}
 
-			// Obtener el actual UTC string
+			// obtener el texto
 			const currentUTC = match[1];
 
-			// Buscar índice en array
+			// buscar el index
 			const currentIndex = utcOffsets.findIndex((utc) => utc === currentUTC);
 
 			if (currentIndex === -1) {
@@ -229,14 +222,14 @@ export class timezoneController {
 				return GeneralStatus.internalError;
 			}
 
-			// Obtener índice anterior
+			// obtener el índice anterior
 			const prevIndex = (currentIndex - 1 + utcOffsets.length) % utcOffsets.length;
 			const prevUTC = utcOffsets[prevIndex];
 
-			// Convertir el string UTC a minutos para la BD
+			// convertir el string UTC a minutos para la BD
 			const prevUTCMinutes = this.utcStringToMinutes(prevUTC);
 
-			// Actualizar UTC en la base de datos (siempre en minutos)
+			// actualizar UTC en la base de datos (siempre en minutos)
 			const result = await timezoneModel.setTimezone({ userID, timezone: prevUTCMinutes });
 
 			if (result === RegisterStatus.userNotRegistered) {
@@ -247,7 +240,7 @@ export class timezoneController {
 				return GeneralStatus.internalError;
 			}
 
-			// Devolver los minutos para actualizar el embed
+			// devolver los minutos para actualizar el embed
 			return prevUTCMinutes;
 		} catch (error) {
 			Logger.error(error);
@@ -265,12 +258,12 @@ export class timezoneController {
 		embedText: string;
 	}) {
 		try {
-			// Check if it's the same user who executed /setup
+			// check if it's the same user who executed /setup
 			if (!permissionController.isSameUser({ userID: userID, messageUserID: messageUserID })) {
 				return GeneralStatus.userNotAllowed;
 			}
 
-			// Extract current UTC from embed
+			// extract current UTC from embed
 			const utcRegex = /Current UTC: ([−+]\d{2}:\d{2})/;
 			const match = embedText?.match(utcRegex);
 
@@ -279,10 +272,10 @@ export class timezoneController {
 				return GeneralStatus.internalError;
 			}
 
-			// Get current UTC string
+			// get current UTC string
 			const currentUTC = match[1];
 
-			// Verify current UTC exists in list
+			// verify current UTC exists in list
 			const currentIndex = utcOffsets.findIndex((utc) => utc === currentUTC);
 
 			if (currentIndex === -1) {
@@ -290,13 +283,13 @@ export class timezoneController {
 				return GeneralStatus.internalError;
 			}
 
-			// Set UTC to +00:00
+			// set UTC to +00:00
 			const zeroUTC = '+00:00';
 
-			// Convert UTC string to minutes for DB
+			// convert UTC string to minutes for DB
 			const zeroUTCMinutes = this.utcStringToMinutes(zeroUTC);
 
-			// Update UTC in database (always in minutes)
+			// update UTC in database (always in minutes)
 			const result = await timezoneModel.setTimezone({ userID, timezone: zeroUTCMinutes });
 
 			if (result === RegisterStatus.userNotRegistered) {
@@ -307,7 +300,7 @@ export class timezoneController {
 				return GeneralStatus.internalError;
 			}
 
-			// Return minutes to update the embed
+			// return minutes to update the embed
 			return zeroUTCMinutes;
 		} catch (error) {
 			Logger.error(error);
