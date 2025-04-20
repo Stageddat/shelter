@@ -94,7 +94,7 @@ const utcOffsetsInMinutes = {
 };
 
 export class timezoneController {
-	// Función para convertir minutos a formato UTC string (para mostrar)
+	// convert min to utc string
 	static minutesToUTCString(offsetInMinutes: number): string {
 		const isNegative = offsetInMinutes < 0;
 		const absMinutes = Math.abs(offsetInMinutes);
@@ -102,20 +102,20 @@ export class timezoneController {
 		const hours = Math.floor(absMinutes / 60);
 		const minutes = absMinutes % 60;
 
-		const sign = isNegative ? '−' : '+'; // Usando el signo menos adecuado, no el guión
+		const sign = isNegative ? '−' : '+';
 		const formattedHours = hours.toString().padStart(2, '0');
 		const formattedMinutes = minutes.toString().padStart(2, '0');
 
 		return `${sign}${formattedHours}:${formattedMinutes}`;
 	}
 
-	// Función para convertir un string UTC a minutos (para leer del UI)
+	// convert utc to min for database
 	static utcStringToMinutes(utcString: string): number {
 		if (utcString in utcOffsetsInMinutes) {
 			return utcOffsetsInMinutes[utcString as keyof typeof utcOffsetsInMinutes];
 		}
 
-		// Fallback en caso de que no esté en el mapeo
+		// xd?
 		const regex = /([−+])(\d+):(\d+)/;
 		const match = utcString.match(regex);
 
@@ -166,14 +166,14 @@ export class timezoneController {
 				return GeneralStatus.internalError;
 			}
 
-			// Obtener siguiente índice
+			// get next index
 			const nextIndex = (currentIndex + 1) % utcOffsets.length;
 			const nextUTC = utcOffsets[nextIndex];
 
-			// Convertir el string UTC a minutos para la BD
+			// convert stirng to min back :v
 			const nextUTCMinutes = this.utcStringToMinutes(nextUTC);
 
-			// Actualizar UTC en la base de datos (siempre en minutos)
+			// update
 			const result = await timezoneModel.setTimezone({ userID, timezone: nextUTCMinutes });
 
 			if (result === RegisterStatus.userNotRegistered) {
@@ -249,6 +249,66 @@ export class timezoneController {
 
 			// Devolver los minutos para actualizar el embed
 			return prevUTCMinutes;
+		} catch (error) {
+			Logger.error(error);
+			return GeneralStatus.internalError;
+		}
+	}
+
+	static async restartTimezone({
+		userID,
+		messageUserID,
+		embedText,
+	}: {
+		userID: string;
+		messageUserID: string;
+		embedText: string;
+	}) {
+		try {
+			// Check if it's the same user who executed /setup
+			if (!permissionController.isSameUser({ userID: userID, messageUserID: messageUserID })) {
+				return GeneralStatus.userNotAllowed;
+			}
+
+			// Extract current UTC from embed
+			const utcRegex = /Current UTC: ([−+]\d{2}:\d{2})/;
+			const match = embedText?.match(utcRegex);
+
+			if (!match) {
+				Logger.error('Failed to extract UTC from embed');
+				return GeneralStatus.internalError;
+			}
+
+			// Get current UTC string
+			const currentUTC = match[1];
+
+			// Verify current UTC exists in list
+			const currentIndex = utcOffsets.findIndex((utc) => utc === currentUTC);
+
+			if (currentIndex === -1) {
+				Logger.error(`Current UTC ${currentUTC} not found in list`);
+				return GeneralStatus.internalError;
+			}
+
+			// Set UTC to +00:00
+			const zeroUTC = '+00:00';
+
+			// Convert UTC string to minutes for DB
+			const zeroUTCMinutes = this.utcStringToMinutes(zeroUTC);
+
+			// Update UTC in database (always in minutes)
+			const result = await timezoneModel.setTimezone({ userID, timezone: zeroUTCMinutes });
+
+			if (result === RegisterStatus.userNotRegistered) {
+				return RegisterStatus.userNotRegistered;
+			}
+
+			if (result === GeneralStatus.databaseError) {
+				return GeneralStatus.internalError;
+			}
+
+			// Return minutes to update the embed
+			return zeroUTCMinutes;
 		} catch (error) {
 			Logger.error(error);
 			return GeneralStatus.internalError;
