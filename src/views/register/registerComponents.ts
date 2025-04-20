@@ -28,14 +28,14 @@ const restartTimezoneButton = new ButtonBuilder()
 	.setStyle(ButtonStyle.Secondary)
 	.setEmoji('🔄');
 
-const substractTimezoneButton = new ButtonBuilder()
-	.setCustomId('substractTimezoneButton')
+const subtractTimezoneButton = new ButtonBuilder()
+	.setCustomId('subtractTimezoneButton')
 	// .setLabel('')
 	.setStyle(ButtonStyle.Secondary)
 	.setEmoji('<substract:1357025109277413619>');
 
 export const setTimezoneRow = new ActionRowBuilder<ButtonBuilder>().addComponents(
-	substractTimezoneButton,
+	subtractTimezoneButton,
 	restartTimezoneButton,
 	addTimezoneButton,
 );

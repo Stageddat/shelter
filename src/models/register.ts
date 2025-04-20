@@ -7,13 +7,13 @@ export class registerModel {
 	static async addNewUser({ userID }: { userID: string }) {
 		// Check if users exist
 		try {
-			const existingUser = await prisma.users.findUnique({
+			const userData = await prisma.users.findUnique({
 				where: { userID },
 			});
-			if (existingUser && existingUser.setupComplete === true) {
+			if (userData && userData.setupComplete === true) {
 				return RegisterStatus.userSetupComplete;
-			} else if (existingUser && existingUser.setupComplete === false) {
-				return RegisterStatus.userSetupNotComplete;
+			} else if (userData && userData.setupComplete === false) {
+				return userData;
 			}
 		} catch (error) {
 			Logger.error(error);
@@ -34,19 +34,6 @@ export class registerModel {
 			return GeneralStatus.databaseError;
 		}
 	}
-	static async getUserStep({ userID }: { userID: string }) {
-		try {
-			const userData = await prisma.users.findUnique({
-				where: { userID },
-			});
-			if (!userData) return RegisterStatus.userNotRegistered;
-			return userData.setupCount;
-		} catch (error) {
-			Logger.error(error);
-			return GeneralStatus.databaseError;
-		}
-	}
-
 	static async updateUserStep({ userID, newUserStep }: { userID: string; newUserStep: number }) {
 		try {
 			const updatedUser = await prisma.users.update({
@@ -54,21 +41,8 @@ export class registerModel {
 				data: { setupCount: newUserStep },
 			});
 
-			if (!updatedUser) return RegisterStatus.userNotRegistered;
-			return GeneralStatus.databaseSucess;
-		} catch (error) {
-			Logger.error(error);
-			return GeneralStatus.databaseError;
-		}
-	}
-
-	static async getUserTimezone({ userID }: { userID: string }) {
-		try {
-			const userData = await prisma.users.findUnique({
-				where: { userID },
-			});
-			if (!userData) return RegisterStatus.userNotRegistered;
-			return userData.utcOffset;
+			if (!updatedUser) return GeneralStatus.databaseError;
+			return GeneralStatus.databaseSuccess;
 		} catch (error) {
 			Logger.error(error);
 			return GeneralStatus.databaseError;

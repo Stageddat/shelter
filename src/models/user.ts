@@ -1,24 +1,17 @@
 import prisma from '../lib/prisma.js';
 import { Logger } from '../lib/logger.js';
 import { GeneralStatus } from '../enum/generalStatus.js';
+import { RegisterStatus } from 'src/enum/registerStatus.js';
 
 export class userModel {
-	static async isUserSetupComplete({ userID }: { userID: string }) {
+	static async getUserDataByID({ userID }: { userID: string }) {
 		try {
-			const userSetupComplete = await prisma.users.findUnique({
+			const userData = await prisma.users.findUnique({
 				where: { userID },
-				select: { setupComplete: true },
 			});
-			Logger.debug(userSetupComplete);
-			if (userSetupComplete === null) return false;
-			switch (userSetupComplete?.setupComplete) {
-				case true:
-					return true;
-				case false:
-					return false;
-				default:
-					return false;
-			}
+			Logger.debug(userData);
+			if (userData === null) return RegisterStatus.userNotRegistered;
+			return userData;
 		} catch (error) {
 			Logger.error(error);
 			return GeneralStatus.databaseError;

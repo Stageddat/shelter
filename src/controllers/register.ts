@@ -8,25 +8,18 @@ import { permissionController } from './permission.js';
 export class registerController {
 	static async newUser({ userID }: { userID: string }) {
 		try {
-			// is user registered?
+			// Usar directamente el modelo de registro que ya hace las verificaciones necesarias
 			const registerStatus = await registerModel.addNewUser({ userID: userID });
 
 			switch (registerStatus) {
-				// if user is already registered but setup not complete, get the current register step
-				case RegisterStatus.userSetupNotComplete: {
-					const userStep = await registerModel.getUserStep({ userID: userID });
-					// if smth fails or user is somehow not registered, return error
-					if (typeof userStep === 'number') return userStep;
-					else return GeneralStatus.internalError;
-				}
-				case RegisterStatus.userSetupComplete: {
-					return RegisterStatus.userSetupComplete;
-				}
-				case RegisterStatus.userRegisteredSuccessfully: {
-					return RegisterStatus.userRegisteredSuccessfully;
-				}
-				case GeneralStatus.databaseError: {
+				case RegisterStatus.userSetupComplete:
+				case RegisterStatus.userRegisteredSuccessfully:
+					return registerStatus;
+				case GeneralStatus.databaseError:
 					return GeneralStatus.internalError;
+				default: {
+					const userData = registerStatus;
+					return userData;
 				}
 			}
 		} catch (error) {
@@ -63,7 +56,7 @@ export class registerController {
 		}
 	}
 
-	static async getNextSetupStep({
+	static async getNextSetupPage({
 		userID,
 		messageUserID,
 	}: {
@@ -75,31 +68,33 @@ export class registerController {
 			if (!permissionController.isSameUser({ userID: userID, messageUserID: messageUserID })) {
 				return GeneralStatus.userNotAllowed;
 			}
-			// ver si el usuario esta de verdad registrado o es un troller de mierda
-			const userSetupStatus = await userModel.isUserSetupComplete({
+			// intentar conseguir sus datos
+			const userData = await userModel.getUserDataByID({
 				userID: userID,
 			});
-			switch (userSetupStatus) {
-				case true: {
-					return RegisterStatus.userSetupComplete;
+			switch (userData) {
+				case RegisterStatus.userNotRegistered: {
+					return RegisterStatus.userNotRegistered;
 				}
 				case GeneralStatus.databaseError:
 					return GeneralStatus.internalError;
-				case false: {
-					const userStep = await registerModel.getUserStep({ userID });
-					if (typeof userStep === 'number') {
-						await registerModel.updateUserStep({
-							userID: userID,
-							newUserStep: userStep + 1,
-						});
-						return userStep + 1;
-					} else if (userStep === RegisterStatus.userNotRegistered) {
-						return RegisterStatus.userNotRegistered;
+				// el usuario si q existe asi q cogemos su info
+				default: {
+					const newUserStep = userData.setupCount + 1;
+					const updateUserStepStatus = await registerModel.updateUserStep({
+						userID: userID,
+						newUserStep: newUserStep,
+					});
+					switch (updateUserStepStatus) {
+						case GeneralStatus.databaseError:
+							return GeneralStatus.internalError;
+						case GeneralStatus.databaseSuccess:
+							return {
+								...userData,
+								setupCount: newUserStep,
+							};
 					}
-					return GeneralStatus.internalError;
 				}
-				default:
-					return GeneralStatus.internalError;
 			}
 		} catch (error) {
 			Logger.error('Error in getNextSetupStep');
@@ -112,5 +107,54 @@ export class registerController {
 		const userUtcOffset = await registerModel.getUserTimezone({ userID });
 		if (typeof userUtcOffset === 'number') return userUtcOffset;
 		else return GeneralStatus.internalError;
+	}
+
+	static async addUserTimezone({
+		userID,
+		messageUserID,
+		utcOffset,
+	}: {
+		userID: string;
+		messageUserID: string;
+		utcOffset: number | 'restart';
+	}) {
+		try {
+			// comprobar si es el mismo usuario q ejecuta el /setup con el quien clica
+			if (!permissionController.isSameUser({ userID: userID, messageUserID: messageUserID })) {
+				return GeneralStatus.userNotAllowed;
+			}
+			// intentar conseguir sus datos
+			const userData = await userModel.getUserDataByID({
+				userID: userID,
+			});
+			switch (userData) {
+				case RegisterStatus.userNotRegistered: {
+					return RegisterStatus.userNotRegistered;
+				}
+				case GeneralStatus.databaseError:
+					return GeneralStatus.internalError;
+				// el usuario si q existe asi q cogemos su info
+				default: {
+					const newUserStep = userData.setupCount + 1;
+					const updateUserStepStatus = await registerModel.updateUserStep({
+						userID: userID,
+						newUserStep: newUserStep,
+					});
+					switch (updateUserStepStatus) {
+						case GeneralStatus.databaseError:
+							return GeneralStatus.internalError;
+						case GeneralStatus.databaseSuccess:
+							return {
+								...userData,
+								setupCount: newUserStep,
+							};
+					}
+				}
+			}
+		} catch (error) {
+			Logger.error('Error in getNextSetupStep');
+			Logger.error(error);
+			return GeneralStatus.internalError;
+		}
 	}
 }

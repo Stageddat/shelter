@@ -1,10 +1,10 @@
 import { ButtonInteraction, EmbedBuilder } from 'discord.js';
 import { registerController } from 'src/controllers/register';
+import { GeneralStatus } from 'src/enum/generalStatus';
+import { RegisterStatus } from 'src/enum/registerStatus';
 import { Logger } from 'src/lib/logger';
-import { errorEmbed } from 'src/views/general';
+import { errorEmbed, notAllowedEmbed } from 'src/views/generalEmbeds';
 import { registerView } from 'src/views/register';
-
-// para futuro yo, mover la logica de si es userSetupComplete a controlador y no en view
 
 export default {
 	customId: 'nextSetupButton',
@@ -17,27 +17,30 @@ export default {
 		try {
 			await interaction.deferUpdate();
 
-			const response = await registerController.getNextSetupStep({
+			const userData = await registerController.getNextSetupPage({
 				userID: interaction.user.id,
 				messageUserID: messageUserID,
 			});
-			const utcOffset = await registerController.getUserTimezone({
-				userID: interaction.user.id,
-			});
-			if (typeof response === 'number' && typeof utcOffset === 'number') {
-				const responseEmbed = registerView.getSetupEmbed({
-					number: response,
-					username: interaction.user.username,
-					timezone: utcOffset,
-				});
-				const components = registerView.getSetupComponents({ number: response });
-
-				if (!(responseEmbed instanceof EmbedBuilder)) {
+			switch (userData) {
+				case GeneralStatus.userNotAllowed:
+					return interaction.editReply({ embeds: [notAllowedEmbed] });
+				case GeneralStatus.internalError:
 					return interaction.editReply({ embeds: [errorEmbed] });
+				case RegisterStatus.userNotRegistered:
+					return interaction.editReply({ embeds: [errorEmbed] });
+				default: {
+					const responseEmbed = registerView.getSetupEmbed({
+						number: userData.setupCount,
+						username: interaction.user.username,
+						timezone: userData.utcOffset,
+					});
+					const components = registerView.getSetupComponents({ number: userData.setupCount });
+					if (!(responseEmbed instanceof EmbedBuilder)) {
+						return interaction.editReply({ embeds: [errorEmbed] });
+					}
+					return interaction.editReply({ embeds: [responseEmbed], components: components });
 				}
-				return interaction.editReply({ embeds: [responseEmbed], components: components });
 			}
-			return response;
 		} catch (error) {
 			Logger.error('Failed to reply with error message');
 			Logger.error(error);
